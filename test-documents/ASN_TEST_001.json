@@ -1,0 +1,35 @@
+{
+  "document_type": "SHIPMENT_NOTICE",
+  "shipment_id": "ASN-TEST-001",
+  "document_number": "ASN-TEST-001",
+  "po_number": "PO-TEST-001",
+  "vendor_id": "SUPPLIER456",
+  "customer_id": "BUYER123",
+  "buyer": "BUYER123",
+  "supplier": "SUPPLIER456",
+  "vendor_name": "SUPPLIER INC",
+  "customer_name": "BUYER CORP",
+  "shipment_date": "2026-06-14",
+  "expected_delivery": "2026-06-20",
+  "carrier": "UPS",
+  "tracking_number": "1Z999AA10123456784",
+  "total_quantity": 700,
+  "total_weight": 1400.0,
+  "weight_unit": "LB",
+  "line_items": [
+    {
+      "line_number": 1,
+      "product_id": "SKU-001",
+      "product_name": "Widget A",
+      "quantity": 400,
+      "unit_price": 10.00
+    },
+    {
+      "line_number": 2,
+      "product_id": "SKU-002",
+      "product_name": "Widget B",
+      "quantity": 300,
+      "unit_price": 15.00
+    }
+  ]
+}

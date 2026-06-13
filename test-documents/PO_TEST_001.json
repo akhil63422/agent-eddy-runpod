@@ -1,0 +1,37 @@
+{
+  "document_type": "PURCHASE_ORDER",
+  "po_number": "PO-TEST-001",
+  "document_number": "PO-TEST-001",
+  "order_number": "ORD-456789",
+  "order_date": "2026-06-13",
+  "vendor_id": "SUPPLIER456",
+  "customer_id": "BUYER123",
+  "buyer": "BUYER123",
+  "supplier": "SUPPLIER456",
+  "vendor_name": "SUPPLIER INC",
+  "customer_name": "BUYER CORP",
+  "vendor_address": "456 Supplier Ave, Los Angeles, CA 90001, USA",
+  "customer_address": "123 Buyer Street, New York, NY 10001, USA",
+  "ship_date": "2026-06-20",
+  "delivery_date": "2026-06-27",
+  "currency": "USD",
+  "total_value": 16500.00,
+  "line_items": [
+    {
+      "line_number": 1,
+      "product_id": "SKU-001",
+      "product_name": "Widget A",
+      "quantity": 1000,
+      "unit_price": 10.00,
+      "line_amount": 10000.00
+    },
+    {
+      "line_number": 2,
+      "product_id": "SKU-002",
+      "product_name": "Widget B",
+      "quantity": 500,
+      "unit_price": 15.00,
+      "line_amount": 7500.00
+    }
+  ]
+}

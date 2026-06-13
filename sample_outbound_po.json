@@ -1,0 +1,25 @@
+{
+  "po_number": "PO-2026-TEST-001",
+  "buyer": "ACME Retail Corp",
+  "supplier": "Global Supplies Inc",
+  "document_date": "2026-06-02",
+  "ship_to": "ACME Warehouse, 100 Commerce Blvd, Dallas TX 75201",
+  "items": [
+    {
+      "product_id": "SKU-WIDGET-001",
+      "description": "Standard Widget Type A",
+      "quantity": 100,
+      "unit": "EA",
+      "unit_price": 12.50
+    },
+    {
+      "product_id": "SKU-WIDGET-002",
+      "description": "Premium Widget Type B",
+      "quantity": 50,
+      "unit": "EA",
+      "unit_price": 24.00
+    }
+  ],
+  "total_amount": 2450.00,
+  "currency": "USD"
+}
