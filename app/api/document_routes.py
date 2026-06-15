@@ -422,8 +422,14 @@ def _is_outbound_json(raw: str) -> bool:
         return False
     try:
         data = json.loads(stripped)
-        # Only PO is outbound; ASN/Invoice are inbound
-        return "po_number" in data
+        # Only true if:
+        # - Has po_number AND
+        # - Does NOT have inbound-specific fields (shipment_id, invoice_number, receipt_date, etc.)
+        has_po = "po_number" in data or "purchase_order" in data
+        has_inbound_fields = any(k in data for k in ["shipment_id", "invoice_number", "receipt_date", "tracking_number", "asn_number"])
+
+        # It's outbound PO only if it has PO fields but NOT inbound-specific fields
+        return has_po and not has_inbound_fields
     except Exception:
         return False
 

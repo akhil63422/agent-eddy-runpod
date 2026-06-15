@@ -6,6 +6,7 @@ from app.skills.shared.intake.skill import IntakeSkill
 from app.skills.inbound.format_detection.skill import FormatDetectionSkill
 from app.skills.inbound.parser.skill import ParserSkill
 from app.skills.inbound.relationship.skill import RelationshipSkill
+from app.skills.inbound.partner_lookup.skill import InboundPartnerLookupSkill
 from app.skills.inbound.normalization.skill import NormalizationSkill
 from app.skills.inbound.mapper.skill import MapperSkill
 from app.skills.inbound.validator.skill import ValidatorSkill
@@ -17,6 +18,7 @@ def build_graph() -> StateGraph:
     format_detection = FormatDetectionSkill()
     parser = ParserSkill()
     relationship = RelationshipSkill()
+    partner_lookup = InboundPartnerLookupSkill()
     normalization = NormalizationSkill()
     mapper = MapperSkill()
     validator = ValidatorSkill()
@@ -28,6 +30,7 @@ def build_graph() -> StateGraph:
     graph.add_node("format_detection", format_detection.execute)
     graph.add_node("parser", parser.execute)
     graph.add_node("relationship", relationship.execute)
+    graph.add_node("partner_lookup", partner_lookup.execute)
     graph.add_node("normalization", normalization.execute)
     graph.add_node("mapper", mapper.execute)
     graph.add_node("validator", validator.execute)
@@ -37,7 +40,8 @@ def build_graph() -> StateGraph:
     graph.add_edge("intake", "format_detection")
     graph.add_conditional_edges("format_detection", route_after_format_detection)
     graph.add_edge("parser", "relationship")
-    graph.add_edge("relationship", "normalization")
+    graph.add_edge("relationship", "partner_lookup")
+    graph.add_edge("partner_lookup", "normalization")
     graph.add_edge("normalization", "mapper")
     graph.add_edge("mapper", "validator")
     graph.add_conditional_edges("validator", route_after_validator)

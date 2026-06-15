@@ -55,12 +55,14 @@ class TransactionCorrelationService:
                     pass
 
             keys = self.extract_correlation_keys(canonical_data)
-            supplier = doc.source_partner
-            buyer = doc.destination_partner
+            # Use canonical event buyer/supplier if available (normalized across document types)
+            # Fallback to document source/destination
+            supplier = canonical_data.get("supplier") or doc.source_partner
+            buyer = canonical_data.get("buyer") or doc.destination_partner
 
             log.info(
                 f"[correlation] Correlating {doc.transaction_type}: "
-                f"po={keys.get('po_number')}"
+                f"po={keys.get('po_number')} supplier={supplier} buyer={buyer}"
             )
 
             # 2. Find or create transaction
@@ -166,14 +168,24 @@ class TransactionCorrelationService:
         db: Session,
     ) -> Optional[BusinessTransaction]:
         """Search for existing BusinessTransaction."""
-        # 1. Try po_number (primary key)
+        # 1. Try po_number (primary key) - search without supplier constraint first
+        # because documents may have different source/destination order
         if keys.get("po_number"):
+            # Try exact match first (po + supplier)
             transaction = db.query(BusinessTransaction).filter(
                 BusinessTransaction.po_number == keys["po_number"],
                 BusinessTransaction.supplier == supplier,
             ).first()
             if transaction:
-                log.info(f"[correlation] Found transaction via po_number: {keys['po_number']}")
+                log.info(f"[correlation] Found transaction via po_number+supplier: {keys['po_number']}")
+                return transaction
+
+            # Fallback: po_number alone (handles PO→Invoice direction reversal)
+            transaction = db.query(BusinessTransaction).filter(
+                BusinessTransaction.po_number == keys["po_number"],
+            ).order_by(BusinessTransaction.created_at.desc()).first()
+            if transaction:
+                log.info(f"[correlation] Found transaction via po_number only: {keys['po_number']}")
                 return transaction
 
         # 2. Try order_number
@@ -252,6 +264,19 @@ class TransactionCorrelationService:
 
         # Update TransactionDocument
         doc.business_transaction_id = transaction.id
+
+        # Auto-link related documents in the same transaction (e.g., PO ↔ Invoice)
+        # Find other documents in this transaction
+        related_docs = db.query(TransactionDocument).filter(
+            TransactionDocument.business_transaction_id == transaction.id,
+            TransactionDocument.id != doc.id,  # Exclude current document
+        ).order_by(TransactionDocument.created_at.asc()).all()
+
+        if related_docs:
+            # Link to the first/most recent related document
+            doc.linked_document_id = related_docs[0].id
+            log.info(f"[correlation] Auto-linked {doc.transaction_type} to {related_docs[0].transaction_type}")
+
         db.commit()
 
         return link

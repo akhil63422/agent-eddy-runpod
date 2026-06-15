@@ -86,13 +86,23 @@ class X12ParserTool:
                 data["routing_service"] = e[2] if len(e) > 2 else ""
                 data["transport_mode"]  = e[4] if len(e) > 4 else ""
 
-            elif tag == "L11":  # Reference numbers
+            elif tag == "L11":  # Reference numbers (mainly 204/856)
                 ref_val  = e[1] if len(e) > 1 else ""
                 ref_qual = e[2] if len(e) > 2 else ""
                 if ref_qual == "LN":
                     data["load_number"] = ref_val
                 elif ref_qual == "PO":
                     data["po_number"] = ref_val
+                else:
+                    data[f"ref_{ref_qual.lower()}"] = ref_val
+
+            elif tag == "REF":  # Reference numbers (mainly 810 invoices)
+                ref_qual = e[1] if len(e) > 1 else ""
+                ref_val  = e[2] if len(e) > 2 else ""
+                if ref_qual == "PO":
+                    data["po_number"] = ref_val
+                elif ref_qual == "IV":
+                    data["invoice_number"] = ref_val
                 else:
                     data[f"ref_{ref_qual.lower()}"] = ref_val
 
@@ -181,12 +191,13 @@ class JSONParserTool:
         # Infer transaction_type if not explicitly set
         tx_type = (data.get("transaction_type") or "").upper()
         if not tx_type or tx_type == "UNKNOWN":
-            if data.get("po_number") or data.get("purchase_order_number"):
-                tx_type = "PURCHASE_ORDER"
+            # Check more specific types first (ASN/Invoice) before generic PO
+            if data.get("shipment_id") or data.get("asn_number") or data.get("tracking_number"):
+                tx_type = "SHIPMENT_NOTICE"
             elif data.get("invoice_number") or data.get("invoice_no"):
                 tx_type = "INVOICE"
-            elif data.get("shipment_id") or data.get("asn_number") or data.get("tracking_number"):
-                tx_type = "SHIPMENT_NOTICE"
+            elif data.get("po_number") or data.get("purchase_order_number"):
+                tx_type = "PURCHASE_ORDER"
             else:
                 tx_type = "UNKNOWN"
 
